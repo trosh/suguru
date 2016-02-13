@@ -1,8 +1,10 @@
-# [Suguru](krazydad.com/suguru) Solver
+# [Suguru](http://krazydad.com/suguru) Solver
 
 by trosh
 
 Coded in *ugly ugly C*© <3 <3
+
+![Screenshot of solved Suguru grid](screenshot.png "Screenshot")
 
 ## building
 
@@ -48,5 +50,4 @@ every cell within region for each possibility.
 - display grid with a row major pass
   (store coords -> region array during init?)
 - add user options
-- add screenshot(s) to this file
 
