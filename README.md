@@ -2,6 +2,8 @@
 
 by trosh
 
+Coded in *ugly ugly C*© <3 <3
+
 ## building
 
 running `make` inside the main directory should build
