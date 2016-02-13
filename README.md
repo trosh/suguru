@@ -4,19 +4,14 @@ by trosh
 
 ## building
 
-running
-
-    make
-
-inside the main directory should build a `suguru` executable.
+running `make` inside the main directory should build
+a `suguru` executable.
 
 ## usage
 
     ./suguru FILE.sgr
 
-for example,
-
-    ./suguru grids/s_v1_b16_3.sgr
+for example, `./suguru grids/s_v1_b16_3.sgr`
 
 ## notes
 
@@ -51,4 +46,5 @@ every cell within region for each possibility.
 - display grid with a row major pass
   (store coords -> region array during init?)
 - add user options
+- add screenshot(s) to this file
 
