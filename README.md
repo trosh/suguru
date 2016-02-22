@@ -43,25 +43,25 @@ final values: in each cell,
 
 This should be implemented with a
 
-    struct {
+    struct cell {
         unsigned int found : 1;
-        union {
+        union content {
             unsigned int value : 3;
-            struct {
+            struct choices {
                 unsigned int one   : 1;
                 unsigned int two   : 1;
                 unsigned int three : 1;
                 unsigned int four  : 1;
                 unsigned int five  : 1;
-            } choices;
-        } content;
-    } cell;
+            };
+        };
+    };
 
 or
 
-    union {
+    union cell {
         unsigned int final_value;
-        struct {
+        struct choices {
             unsigned int not_final : 1;
             //int filler             : 2; /* not actually necessary */
             unsigned int one       : 1;
@@ -69,8 +69,8 @@ or
             unsigned int three     : 1;
             unsigned int four      : 1;
             unsigned int five      : 1;
-        } possibilities;
-    } cell;
+        };
+    };
 
 maybe, but it is currently implemented as a `char`,
 with binary operations implemented manually.
