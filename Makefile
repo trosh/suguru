@@ -7,7 +7,7 @@ GRID := grids/s_v1_b16_3.sgr
 
 all: $(TARGET)
 
-$(TARGET): main.c
+$(TARGET): src/main.c
 	$(CC) $< -o $@ $(CFLAGS)
 
 run: $(TARGET)
