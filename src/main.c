@@ -407,12 +407,14 @@ char sgr_checkevol(sgr_t * grid) {
     return i;
 }
 
-void sgr_solve(sgr_t * grid) {
+char sgr_solve(sgr_t * grid) {
+    char evol;
     do {
         sgr_passvalues(grid);
         sgr_passregions(grid);
-    } while (sgr_checkwin(grid) == 0
-          && sgr_checkevol(grid) != 0);
+    } while ((evol = sgr_checkevol(grid))
+          && !sgr_checkwin(grid));
+    return evol;
 }
 
 int main(int argc, char * argv[]) {
@@ -422,9 +424,12 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     grid = sgr_grid_from_file(argv[1]);
-    sgr_solve(grid);
+    if (sgr_solve(grid)) {
+        puts("\033[32mWIN\033[m");
+    } else {
+        puts("\033[31mFAIL\033[m");
+    }
     sgr_display(grid);
-    printf("%d iterations\n", i);
     sgr_grid_finalize(grid);
     return 0;
 }
