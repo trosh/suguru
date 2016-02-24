@@ -68,6 +68,7 @@ sgr_t * sgr_grid_from_file(char * filename) {
         }
         if (onlyspaces)
             continue;
+        /* disregard comments */
         if (line[0] == '#')
             continue;
         if (!(grid->w || strncmp(line, "width", 5))) {
