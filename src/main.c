@@ -20,9 +20,15 @@ union cell {
 
 #define MAX_REGIONS 64
 
+struct regionref {
+    char r; /* region index */
+    char b; /* block index (within region) */
+};
+
 typedef struct {
     char * values;
     int regions[MAX_REGIONS][5][2];
+    struct regionref * regionsref;
     char sizes[MAX_REGIONS];
     char numregions;
     int w, h;
@@ -62,17 +68,19 @@ nonspace:
             continue;
         if (!(grid->w || strncmp(line, "width", 5))) {
             fscanf(file, "%d", &(grid->w));
-            if (grid->h)
-                grid->values = malloc(grid->w*grid->h);
             continue;
         }
         if (!(grid->h || strncmp(line, "height", 6))) {
             fscanf(file, "%d", &(grid->h));
-            if (grid->w)
-                grid->values = malloc(grid->w*grid->h);
             continue;
         }
-        if (grid->values && !strncmp(line, "regions", 7)) {
+        if (grid->values == NULL && grid->h && grid->w) {
+            grid->values = malloc(grid->w*grid->h);
+            grid->regionsref = malloc(grid->w*grid->h
+                                    * sizeof(struct regionref));
+        }
+        if (grid->values != NULL
+         && !strncmp(line, "regions", 7)) {
             for (i=0; i<grid->h; i++)
             for (j=0; j<grid->w; j++) {
                 fscanf(file, "%d", &v);
@@ -89,8 +97,10 @@ nonspace:
                 if (v >= grid->numregions) {
                     grid->numregions = v+1;
                 }
-                grid->regions[v][grid->sizes[v]  ][0] = i;
-                grid->regions[v][grid->sizes[v]++][1] = j;
+                grid->regions[v][grid->sizes[v]][0] = i;
+                grid->regions[v][grid->sizes[v]][1] = j;
+                grid->regionsref[i*grid->w+j].r = v;
+                grid->regionsref[i*grid->w+j].b = grid->sizes[v]++;
             }
             for (r=0; r<grid->numregions; r++)
             for (b=0; b<grid->sizes[r]; b++) {
@@ -245,14 +255,17 @@ void sgr_passregions(sgr_t * grid) {
 
 void sgr_display(sgr_t * grid) {
     int r, b, i, j, v;
-    for (r=0; r<grid->numregions; r++)
-    for (b=0; b<grid->sizes[r]; b++) {
-        i = grid->regions[r][b][0];
-        j = grid->regions[r][b][1];
-        v = grid->values[i*grid->w+j];
-        printf("\033[%d;%dH\033[4%d;9%dm%c \033[0m",
-               i+1, 2*j+1, r%7, r/7, v>0?v+'0':' ');
+    for (i=0; i<grid->h; i++) {
+        for (j=0; j<grid->w; j++) {
+            r = grid->regionsref[i*grid->w+j].r;
+            b = grid->regionsref[i*grid->w+j].b;
+            v = grid->values[i*grid->w+j];
+            printf("\033[4%d;9%dm%c \033[0m",
+                   r%7, r/7, v>=0?v+'0':' ');
+        }
+        putchar('\n');
     }
+    putchar('\n');
 }
 
 char sgr_checkwin(sgr_t * grid) {
@@ -270,7 +283,6 @@ int main(int argc, char * argv[]) {
         fputs("usage: suguru FILE.sgr", stderr);
         return 1;
     }
-    puts("\033[2J");
     grid = sgr_readfile(argv[1]);
     i = 0;
     do {
@@ -279,7 +291,7 @@ int main(int argc, char * argv[]) {
         i++;
     } while (sgr_checkwin(grid) == 0 && i<5000);
     sgr_display(grid);
-    printf("\n\n%d iterations\n", i);
+    printf("%d iterations\n", i);
     free(grid->values); /* ? */
     return 0;
 }
