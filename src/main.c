@@ -299,8 +299,7 @@ int main(int argc, char * argv[]) {
     do {
         sgr_passvalues(grid);
         sgr_passregions(grid);
-        i++;
-    } while (sgr_checkwin(grid) == 0 && i<5000);
+    } while (sgr_checkwin(grid) == 0 && i++<5000);
     sgr_display(grid);
     printf("%d iterations\n", i);
     sgr_grid_finalize(grid);
