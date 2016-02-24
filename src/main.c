@@ -2,6 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* TODO use this storage instead of directly working
+ * with char values */
+union cell {
+    unsigned char final_value : 3;
+    struct {
+        unsigned char one       : 1;
+        unsigned char two       : 1;
+        unsigned char three     : 1;
+        /* one, two and three are overwritable by final_value */
+        unsigned char four      : 1;
+        unsigned char five      : 1;
+        /* union choice bit, cannot be affected by final_value */
+        unsigned char not_final : 1;
+    } choices;
+};
+
 #define MAX_REGIONS 64
 
 typedef struct {

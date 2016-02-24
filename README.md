@@ -43,33 +43,17 @@ final values: in each cell,
 
 This should be implemented with a
 
-    struct cell {
-        unsigned int found : 1;
-        union content {
-            unsigned int value : 3;
-            struct choices {
-                unsigned int one   : 1;
-                unsigned int two   : 1;
-                unsigned int three : 1;
-                unsigned int four  : 1;
-                unsigned int five  : 1;
-            };
-        };
-    };
-
-or
-
     union cell {
-        unsigned int final_value;
-        struct choices {
-            unsigned int not_final : 1;
-            //int filler             : 2; /* not actually necessary */
-            unsigned int one       : 1;
-            unsigned int two       : 1;
-            unsigned int three     : 1;
-            unsigned int four      : 1;
-            unsigned int five      : 1;
-        };
+        signed char final_value;
+        struct {
+            unsigned char one       : 1;
+            unsigned char two       : 1;
+            unsigned char three     : 1;
+            unsigned char four      : 1;
+            unsigned char five      : 1;
+            char filler             : 2;
+            unsigned char not_final : 1;
+        } choices;
     };
 
 maybe, but it is currently implemented as a `char`,
