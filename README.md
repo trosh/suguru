@@ -61,7 +61,6 @@ with binary operations implemented manually.
 
 ## todo
 
-- split into files
 - split regions when n possibilities are placed in the same n cells
 - encapsulate iterator
 - determine blocked iterations (not just winning iterations)
