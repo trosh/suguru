@@ -1,1 +1,3 @@
 suguru
+*.sw?
+*.o
