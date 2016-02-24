@@ -37,7 +37,10 @@ typedef struct {
 #define LINE_LEN 128
 #define READLINE(len) if (fgets(line, (len), file) == NULL) break;
 
-sgr_t * sgr_readfile(char * filename) {
+/* read a .sgr file and build a sgr_t structure
+ * containing the content to use elsewhere.
+ * sgr_grid_finalize must be used to free malloc'd stuff. */
+sgr_t * sgr_grid_from_file(char * filename) {
     FILE * file;
     char linetab[LINE_LEN];
     char * line;
@@ -47,7 +50,7 @@ sgr_t * sgr_readfile(char * filename) {
     int filled_regions;
     file = fopen(filename, "r");
     line = (char*)linetab;
-    grid = malloc(sizeof(sgr_t));
+    grid = malloc(sizeof(sgr_t)); /* freed in sgr_grid_finalize */
     grid->w = 0;
     grid->h = 0;
     grid->values = NULL;
@@ -132,6 +135,12 @@ sgr_t * sgr_readfile(char * filename) {
     }
     fclose(file);
     return grid;
+}
+
+void sgr_grid_finalize(sgr_t * grid) {
+    free(grid->values);
+    free(grid->regionsref);
+    free(grid);
 }
 
 void sgr_passvalues(sgr_t * grid) {
@@ -284,7 +293,7 @@ int main(int argc, char * argv[]) {
         fputs("usage: suguru FILE.sgr", stderr);
         return 1;
     }
-    grid = sgr_readfile(argv[1]);
+    grid = sgr_grid_from_file(argv[1]);
     i = 0;
     do {
         sgr_passvalues(grid);
@@ -293,7 +302,7 @@ int main(int argc, char * argv[]) {
     } while (sgr_checkwin(grid) == 0 && i<5000);
     sgr_display(grid);
     printf("%d iterations\n", i);
-    free(grid->values); /* ? */
+    sgr_grid_finalize(grid);
     return 0;
 }
 
