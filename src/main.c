@@ -43,7 +43,7 @@ sgr_t * sgr_readfile(char * filename) {
     char * line;
     sgr_t * grid;
     int i, j, r, b;
-    char v;
+    char v, onlyspaces;
     int filled_regions;
     file = fopen(filename, "r");
     line = (char*)linetab;
@@ -56,14 +56,15 @@ sgr_t * sgr_readfile(char * filename) {
     filled_regions = 0;
     while (1) {
         READLINE(LINE_LEN);
+        onlyspaces = 1;
         for (i=0; line[i]; i++) {
             if (line[i] != ' '
              && line[i] != '\t'
              && line[i] != '\n')
-                goto nonspace;
+                onlyspaces = 0;
         }
-        continue;
-nonspace:
+        if (onlyspaces)
+            continue;
         if (line[0] == '#')
             continue;
         if (!(grid->w || strncmp(line, "width", 5))) {

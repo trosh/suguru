@@ -70,7 +70,5 @@ with binary operations implemented manually.
 - do guesswork :-)
   - do 1-level guesswork
   - do a tree-based guesswork :-O (bruteforce) !!
-- display grid with a row major pass
-  (store coords -> region array during init?)
 - add user options
 
