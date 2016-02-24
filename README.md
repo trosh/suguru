@@ -61,8 +61,6 @@ with binary operations implemented manually.
 
 ## todo
 
-- comment comment comment
-- split functions way more
 - split into files
 - split regions when n possibilities are placed in the same n cells
 - encapsulate iterator

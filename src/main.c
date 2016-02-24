@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 /* TODO use this storage instead of directly working
  * with char values */
@@ -144,124 +145,230 @@ void sgr_grid_finalize(sgr_t * grid) {
     free(grid);
 }
 
-void sgr_passvalues(sgr_t * grid) {
+/* TODO use this shite */
+inline char getcell(sgr_t * grid, int i, int j) {
+    return grid->values[i*grid->w+j];
+}
+
+/* TODO use this shite */
+inline char getposs(sgr_t * grid, int i, int j, int poss) {
+    assert(poss >= 1 && poss <= 5);
+    char cell = getcell(grid, i, j);
+    assert(cell < 0);
+    return ~poss & (1 << cell);
+}
+
+void sgr_remove_touching_possibilities(sgr_t * grid) {
     int i, j, ii, jj;
     char v, vv;
+    /* for each cell */
     for (i=0; i<grid->h; i++)
     for (j=0; j<grid->w; j++) {
         v = grid->values[i*grid->w+j];
+        /* if is final value */
         if (v > 0) {
-            for (ii  = (i-1 < 0 ? 0 : i-1);
-                 ii  < ((i+1 >= grid->h) ? grid->h : i+2);
-                 ii += 1)
-            for (jj  = (j-1 < 0 ? 0 : j-1);
-                 jj  < ((j+1 >= grid->w) ? grid->w : j+2);
-                 jj += 1) {
-                if (ii == i
-                 && jj == j)
+            /* for each adjacent cell
+             * (including current one, but it is final so it's ok) */
+            /* for each adjacent block */
+            for (ii=i-1; ii<=i+1; ii++)
+            for (jj=j-1; jj<=j+1; jj++) {
+                /* if in grid */
+                if (ii < 0 || ii >= grid->h
+                 || jj < 0 || jj >= grid->w)
                     continue;
                 vv = grid->values[ii*grid->w+jj];
+                /* if is not final */
                 if (vv < 0) {
-                    vv |= 1<<v-1;
+                    /* remove possibility */
+                    vv |= 1 << v-1;
                     grid->values[ii*grid->w+jj] = vv;
                 }
             }
         }
     }
+}
+
+void sgr_find_final_values(sgr_t * grid) {
+    int i, j;
+    char v;
+    /* for each cell */
     for (i=0; i<grid->h; i++)
     for (j=0; j<grid->w; j++) {
         v = grid->values[i*grid->w+j];
+        /* if not final value */
         if (v < 0) {
+            /* if contains only one possibility */
             switch (v) {
+                /* voodoo :-) */
                 case  -2: v = 1; break;
                 case  -3: v = 2; break;
                 case  -5: v = 3; break;
                 case  -9: v = 4; break;
                 case -17: v = 5; break;
             }
+            /* set as final value */
             grid->values[i*grid->w+j] = v;
         }
     }
 }
 
-//char sgr_rb2v(sgr_t * grid, int r, int b) {
-//    int i, j;
-//    i = grid->regions[r][b][0];
-//    j = grid->regions[r][b][1];
-//    return grid->values[i*grid->w+j];
-//}
+void sgr_passvalues(sgr_t * grid) {
+    sgr_remove_touching_possibilities(grid);
+    sgr_find_final_values(grid);
+}
 
-void sgr_passregions(sgr_t * grid) {
-    int r, b, i, j, v, bb, ii, jj, vv;
-    char cntposs[5], indposs[5], *map;
-    map = malloc(grid->w*grid->h);
-    for (r=0; r<grid->numregions; r++) {
-        for (b=0; b<grid->sizes[r]; b++) {
-            i = grid->regions[r][b][0];
-            j = grid->regions[r][b][1];
-            v = grid->values[i*grid->w+j];
-            if (v > 0) {
-                for (bb=0; bb<grid->sizes[r]; bb++) {
-                    ii = grid->regions[r][bb][0];
-                    jj = grid->regions[r][bb][1];
-                    vv = grid->values[ii*grid->w+jj];
-                    if (vv < 0) {
-                        vv |= 1<<v-1;
-                        grid->values[ii*grid->w+jj] = vv;
-                    }
+/* get value in region r at cell b of grid */
+char sgr_get_rb(sgr_t * grid, int r, int b) {
+    int i, j;
+    i = grid->regions[r][b][0];
+    j = grid->regions[r][b][1];
+    return grid->values[i*grid->w+j];
+}
+
+/* set value in region r at cell b of grid */
+void sgr_set_rb(sgr_t * grid, int r, int b, int v) {
+    int i, j;
+    i = grid->regions[r][b][0];
+    j = grid->regions[r][b][1];
+    grid->values[i*grid->w+j] = v;
+}
+
+void sgr_remove_region_possibilities(sgr_t * grid, int r) {
+    int b, bb;
+    char v, vv;
+    /* for each final value */
+    for (b=0; b<grid->sizes[r]; b++) {
+        v = sgr_get_rb(grid, r, b);
+        if (v > 0) {
+            /* for each inner cell */
+            for (bb=0; bb<grid->sizes[r]; bb++) {
+                vv = sgr_get_rb(grid, r, bb);
+                /* if not final value */
+                if (vv < 0) {
+                    /* remove possibility */
+                    vv |= 1 << v-1;
+                    sgr_set_rb(grid, r, bb, vv);
                 }
-            }
-        }
-        bzero(cntposs, 5);
-        for (b=0; b<grid->sizes[r]; b++) {
-            i = grid->regions[r][b][0];
-            j = grid->regions[r][b][1];
-            v = grid->values[i*grid->w+j];
-            if (v < 0) {
-                for (vv=0; vv<grid->sizes[r]; vv++) {
-                    if ((~v) & (1 << vv)) {
-                        cntposs[vv]++;
-                        indposs[vv] = b;
-                    }
-                }
-            }
-        }
-        for (vv=0; vv<grid->sizes[r]; vv++) {
-            if (cntposs[vv] == 1) {
-                b = indposs[vv];
-                i = grid->regions[r][b][0];
-                j = grid->regions[r][b][1];
-                grid->values[i*grid->w+j] = vv+1;
-            } else if (cntposs[vv] > 1) {
-                bzero(map, grid->w*grid->h);
-                for (b=0; b<grid->sizes[r]; b++) {
-                    i = grid->regions[r][b][0];
-                    j = grid->regions[r][b][1];
-                    map[i*grid->w+j] = -1;
-                    v = grid->values[i*grid->w+j];
-                    if ((v < 0) &&
-                     ((~v) & (1 << vv))) {
-                        for (ii=i-1; ii<=i+1; ii++)
-                        for (jj=j-1; jj<=j+1; jj++) {
-                            if (ii < 0 || ii >= grid->h
-                             || jj < 0 || jj >= grid->w
-                             || map[ii*grid->w+jj] == -1)
-                                continue;
-                            map[ii*grid->w+jj]++;
-                        }
-                    }
-                }
-                for (i=0; i<grid->h; i++)
-                for (j=0; j<grid->w; j++)
-                    if (map[i*grid->w+j] == cntposs[vv]
-                     && grid->values[i*grid->w+j] < 0
-                     && (~grid->values[i*grid->w+j]) & 1<<vv) {
-                        grid->values[i*grid->w+j] |= 1 << vv;
-                    }
             }
         }
     }
+}
+
+/* In a given region, count the occurrences of each
+ * possibility, and the last index of each. */
+void sgr_enumerate_possibilities(
+        /* input */
+        sgr_t * grid, int r,
+        /* output */
+        char cntposs[5], char indposs[5]) {
+    int b;
+    char v, vv;
+    bzero(cntposs, 5);
+    /* for each inner cell */
+    for (b=0; b<grid->sizes[r]; b++) {
+        v = sgr_get_rb(grid, r, b);
+        /* if not final value */
+        if (v < 0) {
+            for (vv=0; vv<grid->sizes[r]; vv++) {
+                if (~v & 1 << vv) {
+                    /* increment possibility count */
+                    cntposs[vv]++;
+                    /* keep last block number, useful if
+                     * possibility is only available once */
+                    indposs[vv] = b;
+                }
+            }
+        }
+    }
+}
+
+/* Uses cntposs and indposs, generated from
+ * sgr_enumerate_possibilities. */
+void sgr_find_lonely_possibilities(
+        /* input/output */
+        sgr_t * grid,
+        /* input */
+        int r,
+        char cntposs[5],
+        char indposs[5]) {
+    int b;
+    char vv;
+    /* for each possibility counted only once */
+    for (vv=0; vv<grid->sizes[r]; vv++) {
+        if (cntposs[vv] == 1) {
+            /* set as final value */
+            b = indposs[vv];
+            sgr_set_rb(grid, r, b, vv+1);
+        }
+    }
+}
+
+/* For a given region, look for blocks (outside of it)
+ * that touch every block within the region containing
+ * a possibility, then remove that possibility from
+ * the external block.
+ * Uses cntposs and indposs, generated from
+ * sgr_enumerate_possibilities. */
+void sgr_find_intersections(
+        /* input/output */
+        sgr_t * grid,
+        /* input */
+        int r, char cntposs[5], char indposs[5]) {
+    int i, j, ii, jj, b;
+    char v, vv, * map;
+    map = malloc(grid->w * grid->h);
+    /* for each possibility repeated more than once */
+    for (vv=0; vv<grid->sizes[r]; vv++) {
+        if (cntposs[vv] > 1) {
+            /* work out touching possibility intersection */
+            bzero(map, grid->w*grid->h);
+            /* for each block containing given possibility */
+            for (b=0; b<grid->sizes[r]; b++) {
+                i = grid->regions[r][b][0];
+                j = grid->regions[r][b][1];
+                map[i*grid->w+j] = -1; /* within region */
+                v = grid->values[i*grid->w+j];
+                if (v < 0
+                 && ~v & 1 << vv) {
+                    /* for each adjacent block */
+                    for (ii=i-1; ii<=i+1; ii++)
+                    for (jj=j-1; jj<=j+1; jj++) {
+                        /* if in map and not in region */
+                        if (ii < 0 || ii >= grid->h
+                         || jj < 0 || jj >= grid->w
+                         || map[ii*grid->w+jj] == -1)
+                            continue;
+                        /* increment number of times this
+                         * adjacent block was touched */
+                        map[ii*grid->w+jj]++;
+                    }
+                }
+            }
+            /* for every block in map */
+            for (i=0; i<grid->h; i++)
+            for (j=0; j<grid->w; j++)
+                /* if is touched by every inner block
+                 * with given possibility and
+                 * is not a final value */
+                if (map[i*grid->w+j] == cntposs[vv]
+                 && grid->values[i*grid->w+j] < 0) {
+                    /* remove possibility */
+                    grid->values[i*grid->w+j] |= 1 << vv;
+                }
+        }
+    }
     free(map);
+}
+
+void sgr_passregions(sgr_t * grid) {
+    int r, b, i, j, bb, ii, jj;
+    char v, vv, cntposs[5], indposs[5];
+    /* for each region */
+    for (r=0; r<grid->numregions; r++) {
+        sgr_remove_region_possibilities(grid, r);
+        sgr_enumerate_possibilities(grid, r, cntposs, indposs);
+        sgr_find_intersections(grid, r, cntposs, indposs);
+    }
 }
 
 void sgr_display(sgr_t * grid) {
