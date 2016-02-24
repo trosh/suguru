@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
 /* TODO use this storage instead of directly working
  * with char values */
@@ -394,19 +395,34 @@ char sgr_checkwin(sgr_t * grid) {
     return 1;
 }
 
+char sgr_checkevol(sgr_t * grid) {
+    int checksum, i;
+    static int prevchecksum = INT_MAX;
+    checksum = 0;
+    for (i=0; i<grid->w*grid->h; i++)
+        if (grid->values[i] < 0)
+            checksum -= grid->values[i];
+    i = prevchecksum - checksum;
+    prevchecksum = checksum;
+    return i;
+}
+
+void sgr_solve(sgr_t * grid) {
+    do {
+        sgr_passvalues(grid);
+        sgr_passregions(grid);
+    } while (sgr_checkwin(grid) == 0
+          && sgr_checkevol(grid) != 0);
+}
+
 int main(int argc, char * argv[]) {
     sgr_t * grid;
-    int i;
     if (argc != 2) {
         fputs("usage: suguru FILE.sgr", stderr);
         return 1;
     }
     grid = sgr_grid_from_file(argv[1]);
-    i = 0;
-    do {
-        sgr_passvalues(grid);
-        sgr_passregions(grid);
-    } while (sgr_checkwin(grid) == 0 && i++<5000);
+    sgr_solve(grid);
     sgr_display(grid);
     printf("%d iterations\n", i);
     sgr_grid_finalize(grid);
