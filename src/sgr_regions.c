@@ -124,26 +124,51 @@ void sgr_find_subregions(
         int r,
         char cntposs[5],
         char indposs[5][5]) {
-    int v1, v2, v3, b;
+    int v1, v2, v3, v, vv, found, numposs;
+    numposs = 0;
+    for (v=0; v<grid->sizes[r]; v++)
+        if (cntposs[v])
+            numposs++;
+    if (numposs != 2 || numposs != 3) return;
     for (v1=0; v1<grid->sizes[r]; v1++) {
-        switch (cntposs[v1]) {
-          case 2:
-            for (v2=0; v2<grid->sizes[r]; v2++) {
+        if (cntposs[v1] == 2
+         && numposs > 2) {
+            for (v2=v1+1; v2<grid->sizes[r]; v2++) {
                 /* search for possibility filling
                  * the same two blocks */
                 if (cntposs[v2] != 2
-                 || (indposs[v2][0] != indposs[v1][0]
-                  && indposs[v2][0] != indposs[v1][1])
-                 || (indposs[v2][1] != indposs[v1][0]
-                  && indposs[v2][1] != indposs[v1][1]))
+                 || indposs[v2][0] != indposs[v1][0]
+                 || indposs[v2][1] != indposs[v1][1])
                     continue;
-                /* TODO FOUND SUBREGION */
+                v = -(1 << v1 | 1 << v2);
+                sgr_set_rb(grid, r, indposs[v1][0], v);
+                sgr_set_rb(grid, r, indposs[v1][1], v);
+                return;
             }
-            break;
-          case 3:
-            for (v2=0; v2<grid->sizes[r]; v2++) {
-                for (v3=0; v3<grid->sizes[r]; v3++) {
-                    /* TODO FIND SUBREGIONS */
+        } else if (cntposs[v1] == 3
+                && numposs > 3) {
+            found = 0;
+            for (v2=v1+1; v2<grid->sizes[r]; v2++) {
+                if (cntposs[v2] != 3
+                 || indposs[v2][0] != indposs[v1][0]
+                 || indposs[v2][1] != indposs[v1][1]
+                 || indposs[v2][2] != indposs[v1][2])
+                    continue;
+                found = 1;
+                break;
+            }
+            if (!found) break;
+            for (v3=v2+1; v3<grid->sizes[r]; v3++) {
+                if (cntposs[v3] != 3
+                 || indposs[v3][0] != indposs[v1][0]
+                 || indposs[v3][1] != indposs[v1][1]
+                 || indposs[v3][2] != indposs[v1][2])
+                    continue;
+                v = -(1 << v1 | 1 << v2 | 1 << v3);
+                sgr_set_rb(grid, r, indposs[v1][0], v);
+                sgr_set_rb(grid, r, indposs[v1][1], v);
+                sgr_set_rb(grid, r, indposs[v1][2], v);
+                return;
             }
         }
     }
@@ -158,6 +183,7 @@ void sgr_passregions(sgr_t * grid) {
         sgr_enumerate_possibilities(grid, r, cntposs, indposs);
         sgr_find_lonely_possibilities(grid, r, cntposs, indposs);
         sgr_find_intersections(grid, r, cntposs);
+        sgr_enumerate_possibilities(grid, r, cntposs, indposs);
         sgr_find_subregions(grid, r, cntposs, indposs);
     }
 }

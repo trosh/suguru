@@ -13,7 +13,7 @@ void sgr_enumerate_possibilities(
         sgr_t * grid, int r,
         /* output */
         char cntposs[5],
-        char indposs[5]);
+        char indposs[5][5]);
 
 /* Uses cntposs and indposs, generated from
  * sgr_enumerate_possibilities. */
@@ -23,7 +23,7 @@ void sgr_find_lonely_possibilities(
         /* input */
         int r,
         char cntposs[5],
-        char indposs[5]);
+        char indposs[5][5]);
 
 /* For a given region, look for blocks (outside of it)
  * that touch every block within the region containing
@@ -36,8 +36,13 @@ void sgr_find_intersections(
         sgr_t * grid,
         /* input */
         int r,
+        char cntposs[5]);
+
+void sgr_find_subregions(
+        sgr_t * grid,
+        int r,
         char cntposs[5],
-        char indposs[5]);
+        char indposs[5][5]);
 
 void sgr_passregions(sgr_t * grid);
 
