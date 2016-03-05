@@ -62,6 +62,7 @@ with binary operations implemented manually.
 ## todo
 
 - split regions when n possibilities are placed in the same n cells
+ - find use cases !!
 - encapsulate iterator
 - determine blocked iterations (not just winning iterations)
 - do guesswork :-)
