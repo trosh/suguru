@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -O2 -g -Iinclude
+CFLAGS := -O0 -g -Iinclude
 TARGET := suguru
 GRID := grids/s_v1_b16_3.sgr
 
