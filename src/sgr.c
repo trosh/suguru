@@ -120,6 +120,20 @@ inline char getposs(sgr_t * grid, int i, int j, int poss) {
     return ~poss & (1 << cell);
 }
 
+char sgr_get_rb(sgr_t * grid, int r, int b) {
+    int i, j;
+    i = grid->regions[r][b][0];
+    j = grid->regions[r][b][1];
+    return grid->values[i*grid->w+j];
+}
+
+void sgr_set_rb(sgr_t * grid, int r, int b, int v) {
+    int i, j;
+    i = grid->regions[r][b][0];
+    j = grid->regions[r][b][1];
+    grid->values[i*grid->w+j] = v;
+}
+
 void sgr_display(sgr_t * grid) {
     int r, b, i, j, v;
     for (i=0; i<grid->h; i++) {

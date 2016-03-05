@@ -59,17 +59,3 @@ void sgr_passvalues(sgr_t * grid) {
     sgr_find_final_values(grid);
 }
 
-char sgr_get_rb(sgr_t * grid, int r, int b) {
-    int i, j;
-    i = grid->regions[r][b][0];
-    j = grid->regions[r][b][1];
-    return grid->values[i*grid->w+j];
-}
-
-void sgr_set_rb(sgr_t * grid, int r, int b, int v) {
-    int i, j;
-    i = grid->regions[r][b][0];
-    j = grid->regions[r][b][1];
-    grid->values[i*grid->w+j] = v;
-}
-

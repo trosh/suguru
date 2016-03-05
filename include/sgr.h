@@ -50,6 +50,12 @@ inline char getcell(sgr_t * grid, int i, int j);
 
 inline char getposs(sgr_t * grid, int i, int j, int poss);
 
+/* get value in region r at cell b of grid */
+char sgr_get_rb(sgr_t * grid, int r, int b);
+
+/* set value in region r at cell b of grid */
+void sgr_set_rb(sgr_t * grid, int r, int b, int v);
+
 void sgr_display(sgr_t * grid);
 
 char sgr_checkwin(sgr_t * grid);
