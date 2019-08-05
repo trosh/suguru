@@ -8,4 +8,3 @@
 char sgr_solve(sgr_t * grid);
 
 #endif /* __SGR_SOLVE_H__ */
-

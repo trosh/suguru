@@ -1,0 +1,27 @@
+# Suguru from Android app
+# which needs detection of subregion groups with equal possibilities
+# to be solved
+
+width
+6
+
+height
+7
+
+regions
+0 0 0 1 1 1
+2 0 3 3 4 4
+2 0 3 3 4 4
+2 2 5 5 4 6
+2 7 5 5 6 6
+7 7 5 8 8 6
+7 7 8 8 8 6
+
+values
+0 0 0 0 0 1
+0 0 0 1 0 0
+3 0 0 0 2 4
+0 0 1 0 0 0
+0 0 0 0 0 0
+0 0 4 0 0 0
+0 0 1 0 0 5

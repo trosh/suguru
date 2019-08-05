@@ -2,7 +2,7 @@
 
 by trosh
 
-Coded in *ugly C*© <3 <3
+Coded in *ugly C*© ♥ ♥
 
 ![Screenshot of solved Suguru grid](screenshot.png "Screenshot")
 

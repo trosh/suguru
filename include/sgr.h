@@ -10,33 +10,39 @@
 /* TODO use this storage instead of directly working
  * with char values */
 union cell {
-    unsigned char final_value : 3;
-    struct {
-        unsigned char one       : 1;
-        unsigned char two       : 1;
-        unsigned char three     : 1;
-        /* one, two and three are overwritable by final_value */
-        unsigned char four      : 1;
-        unsigned char five      : 1;
-        /* union choice bit, cannot be affected by final_value */
-        unsigned char not_final : 1;
-    } choices;
+	unsigned char final_value : 3;
+	struct {
+		unsigned char one       : 1;
+		unsigned char two       : 1;
+		unsigned char three     : 1;
+		/* one, two and three are overwritable by final_value */
+		unsigned char four      : 1;
+		unsigned char five      : 1;
+		/* union choice bit, cannot be affected by final_value */
+		unsigned char not_final : 1;
+	} choices;
 };
 
 #define MAX_REGIONS 64
+#define MAX_BLOCKS 6
 
 struct regionref {
-    char r; /* region index */
-    char b; /* block index (within region) */
+	int r; /* region index */
+	int b; /* block index (within region) */
+};
+
+struct coords {
+	int i; /* row */
+	int j; /* column */
 };
 
 typedef struct {
-    char * values;
-    int regions[MAX_REGIONS][5][2];
-    struct regionref * regionsref;
-    char sizes[MAX_REGIONS];
-    char numregions;
-    int w, h;
+	int * values;
+	struct coords regions[MAX_REGIONS][MAX_BLOCKS];
+	struct regionref * regionsref;
+	int sizes[MAX_REGIONS];
+	int numregions;
+	int w, h;
 } sgr_t;
 
 /* read a .sgr file and build a sgr_t structure
@@ -46,15 +52,10 @@ sgr_t * sgr_grid_from_file(char * filename);
 
 void sgr_grid_finalize(sgr_t * grid);
 
-inline char getcell(sgr_t * grid, int i, int j);
-
-inline char getposs(sgr_t * grid, int i, int j, int poss);
-
 void sgr_display(sgr_t * grid);
 
-char sgr_checkwin(sgr_t * grid);
+int sgr_checkwin(sgr_t * grid);
 
-char sgr_checkevol(sgr_t * grid);
+int sgr_checkevol(sgr_t * grid);
 
 #endif /* __SGR_H__ */
-
