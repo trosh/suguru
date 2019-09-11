@@ -19,8 +19,6 @@ for example, `./suguru grids/s_v1_b16_3.sgr`
 
 ## notes
 
-currently works with pretty simple grids.
-
 the process is relatively simple:
 the program loads the grid from a `.sgr` file,
 then iterates through {values, regions} passes.
@@ -41,31 +39,7 @@ final values: in each cell,
 - if a value is positive, it is worth the final value
 - otherwise its 5 lowest bits describe possibilities.
 
-This should be implemented with a
-
-    union cell {
-        signed char final_value;
-        struct {
-            unsigned char one       : 1;
-            unsigned char two       : 1;
-            unsigned char three     : 1;
-            unsigned char four      : 1;
-            unsigned char five      : 1;
-            char filler             : 2;
-            unsigned char not_final : 1;
-        } choices;
-    };
-
-maybe, but it is currently implemented as a `char`,
-with binary operations implemented manually.
-
 ## todo
 
-- split regions when n possibilities are placed in the same n cells
 - encapsulate iterator
-- determine blocked iterations (not just winning iterations)
-- do guesswork :-)
-  - do 1-level guesswork
-  - do a tree-based guesswork :-O (bruteforce) !!
 - add user options
-

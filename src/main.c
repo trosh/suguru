@@ -10,6 +10,7 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 	grid = sgr_grid_from_file(argv[1]);
+	sgr_display(grid);
 	if (sgr_solve(grid))
 		puts("\033[32mWIN\033[m");
 	else

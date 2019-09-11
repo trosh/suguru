@@ -132,7 +132,7 @@ static void sgr_find_subgroups(
 		/* input */
 		int r)
 {
-	printf("subgroups r=%d\n", r);
+	//printf("subgroups r=%d\n", r);
 	int size = grid->sizes[r];
 	char done[MAX_BLOCKS];
 	char curr[MAX_BLOCKS];
@@ -145,14 +145,14 @@ static void sgr_find_subgroups(
 		int v = grid->values[i * grid->w + j];
 		if (v > 0)
 			continue;
-		putchar('\t');
+		//putchar('\t');
 		for (int vv = 0; vv < size; ++vv) {
 			if (~v & (1 << vv)) {
-				printf("%d ", vv+1);
+				//printf("%d ", vv+1);
 				++blkcntposs[b];
 			}
 		}
-		printf("\n\tblock #%d nb possibilities: %d\n", b, blkcntposs[b]);
+		//printf("\n\tblock #%d nb possibilities: %d\n", b, blkcntposs[b]);
 	}
 	for (int b = 0; b < size; ++b) {
 		int i = grid->regions[r][b].i;
@@ -180,7 +180,7 @@ static void sgr_find_subgroups(
 		}
 		if (numequal != blkcntposs[b])
 			continue;
-		puts("found subgroup!");
+		//puts("found subgroup!");
 		/* Found subgroup! */
 		/* Remove possibilities from blocks not in subgroup */
 		for (int vv = 0; vv < size; ++vv) {

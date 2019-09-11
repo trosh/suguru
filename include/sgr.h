@@ -24,7 +24,7 @@ union cell {
 };
 
 #define MAX_REGIONS 64
-#define MAX_BLOCKS 6
+#define MAX_BLOCKS 10
 
 struct regionref {
 	int r; /* region index */

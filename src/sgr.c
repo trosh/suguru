@@ -66,8 +66,7 @@ void _read_values(sgr_t * grid, FILE * file)
 		//	exit(1);
 		//}
 		for (int j = 0; j < grid->w; ++j) {
-			int v;
-			fscanf(file, "%d", &v);
+			int v = getc(file) - '0';
 			if (v < 0
 			 || v > MAX_BLOCKS) {
 				fprintf(stderr,
@@ -78,6 +77,12 @@ void _read_values(sgr_t * grid, FILE * file)
 			if (v)
 				set(grid, i, j, v);
 		}
+		if (getc(file) != '\n') {
+			fprintf(stderr,
+				"expecting newline at line %d\n",
+				i);
+			exit(1);
+		};
 	}
 }
 
@@ -159,7 +164,6 @@ void sgr_display(sgr_t * grid)
 		}
 		putchar('\n');
 	}
-	putchar('\n');
 }
 
 int sgr_checkwin(sgr_t * grid)
