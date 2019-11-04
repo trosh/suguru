@@ -29,7 +29,7 @@ void _read_regions(sgr_t * grid, FILE * file)
 		fscanf(file, "%d", &r);
 		if (r < 0) {
 			fprintf(stderr,
-				"negative region at (%d,%d)\n", r, i, j);
+				"negative region %d at (%d,%d)\n", r, i, j);
 			exit(1);
 		}
 		if (grid->sizes[r] == MAX_BLOCKS
